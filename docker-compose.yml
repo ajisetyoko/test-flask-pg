@@ -1,0 +1,43 @@
+version: "3.7"
+services:
+  data-db:
+    image: postgres:12.3-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      - data:/var/lib/postgresql/data/
+    networks:
+      - app-net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+  webapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - DEBUG=true
+      - SECRET_KEY=Mud9RRkWVvz2DHus95gaqdt_bbDSrFvaUgT57xISWFE
+      - APP_DB_USER=postgres
+      - APP_DB_PASSWORD=postgres
+      - APP_DB=postgres
+      - APP_DB_HOST=data-manager-db
+      - APP_DB_PORT=5432
+    depends_on:
+      - data-db
+    ports:
+      - 8000:8000
+    networks:
+      - app-net
+
+networks:
+  app-net:
+    name: app-net
+
+volumes:
+  data:
+
